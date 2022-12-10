@@ -80,9 +80,14 @@
                 >
                 <span v-else>{{ item.desc || (index == dataList.length - 1 ? 'Description' : '') }}</span>
               </div>
-              <div v-if="item.edit == '' && index < dataList.length - 1" class="delete-button" style="width: 25px;">
+              <div
+                v-if="item.edit == '' && index < dataList.length - 1"
+                class="delete-button"
+                style="width: 25px;"
+                @click.stop="doDeleteItem(index)"
+              >
                 <!-- 删除图标 -->
-                图
+                <el-icon><Delete /></el-icon>
               </div>
             </div>
           </div>
@@ -153,6 +158,10 @@ const edit = (e: any) => {
 const onBlur = (e: any) => {
   console.log('onblur')
   e.edit = ''
+}
+const doDeleteItem = (index: number) => {
+  console.log('doDeleteItem:', index)
+  dataList.value.splice(index, 1)
 }
 const newDataInput = (e: any) => {
   console.log('newDataInput')
@@ -238,9 +247,11 @@ const dragover = (e: any) => {
       .row {
         display: flex;
         height: 35px;
+        cursor: text;
         >.checkbox{
           display: flex;
-          place-content: space-around;
+          justify-content: end;
+          padding-right: 5px;
           align-items: center;
           >.drag-icon{
             opacity: 0;
@@ -281,6 +292,15 @@ const dragover = (e: any) => {
         }
         .delete-button{
           opacity: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 5px;
+          cursor: pointer;
+          &:hover{
+            border-radius: 3px;
+            background-color: #ddd;
+          }
         }
         &:hover .delete-button, &:hover .drag-icon{
           opacity: 1;
