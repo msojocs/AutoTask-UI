@@ -16,6 +16,10 @@
         </div>
         <div>
           <span>DESCRIPTION</span>
+          <div>
+            <!-- 模式切换 -->
+            Bulk Edit
+          </div>
         </div>
       </div>
       <div class="body test_wrapper" @dragover="dragover($event)">
@@ -40,44 +44,53 @@
               <el-checkbox v-if="index != dataList.length - 1" v-model="item.enable" />
             </div>
             <div @click="item.edit = 'key'">
-              <div>
-                <input
+              <div class="edit-area">
+                <div
                   v-if="item.edit == 'key'"
                   :id="item.id"
                   :ref="edit"
-                  v-model="item.key"
                   class="edit-item"
                   :placeholder="index == dataList.length - 1 ? 'Key' : ''"
+                  contenteditable="true"
+                  @input="item.key = ($event.target as any).innerHTML"
                   @blur="onBlur(item)"
                 >
+                  {{ item.key }}
+                </div>
                 <span v-else>{{ item.key || (index == dataList.length - 1 ? 'Key' : '') }}</span>
               </div>
             </div>
             <div @click="item.edit = 'value'">
-              <div>
-                <input
+              <div class="edit-area">
+                <div
                   v-if="item.edit == 'value'"
                   :id="item.id"
                   :ref="edit"
-                  v-model="item.value"
                   class="edit-item"
                   :placeholder="index == dataList.length - 1 ? 'Value' : ''"
+                  contenteditable="true"
+                  @input="item.value = ($event.target as any).innerHTML"
                   @blur="onBlur(item)"
                 >
+                  {{ item.value }}
+                </div>
                 <span v-else>{{ item.value || (index == dataList.length - 1 ? 'Value' : '') }}</span>
               </div>
             </div>
             <div @click="item.edit = 'desc'">
-              <div>
-                <input
+              <div class="edit-area">
+                <div
                   v-if="item.edit == 'desc'"
                   :id="item.id"
                   :ref="edit"
-                  v-model="item.desc"
                   class="edit-item"
                   :placeholder="index == dataList.length - 1 ? 'Description' : ''"
+                  contenteditable="true"
+                  @input="item.desc = ($event.target as any).innerHTML"
                   @blur="onBlur(item)"
                 >
+                  {{ item.desc }}
+                </div>
                 <span v-else>{{ item.desc || (index == dataList.length - 1 ? 'Description' : '') }}</span>
               </div>
               <div
@@ -119,7 +132,7 @@ const dataList = ref([
     enable: false,
     edit: '',
     key: 'k2',
-    value: 'v2',
+    value: 'v299999999999999999999988888888888888888899999999999999999999999999999999998',
     desc: '测试二号',
   },
   {
@@ -150,10 +163,12 @@ const dataList = ref([
 
 const edit = (e: any) => {
   console.log('input edit:', e)
-  if (e && e.focus)
+  if (e && e.focus) {
     e.focus()
-  else if (e && e.target && e.target.focus)
-    e.target.focus()
+    const range = window.getSelection() // 创建range
+    range?.selectAllChildren(e) // range 选择obj下所有子内容
+    range?.collapseToEnd() // 光标移至最后
+  }
 }
 const onBlur = (e: any) => {
   console.log('onblur')
@@ -228,14 +243,26 @@ const dragover = (e: any) => {
       height: 35px;
       align-items: center;
       justify-content: center;
-      div{
+      >div{
         display: flex;
         height: 100%;
         width: 33.3%;
         border-right: 1px solid #eee;
         border-top: 1px solid #eee;
-        span{
+        >span{
           margin: 5px;
+        }
+      }
+      >div:last-child{
+        justify-content: space-between;
+        align-items: center;
+        >div{
+          height: 100%;
+          padding-right: 10px;
+          padding-left: 10px;
+          border-left: 1px solid #eee;
+          display: flex;
+          align-items: center;
         }
       }
     }
@@ -250,7 +277,7 @@ const dragover = (e: any) => {
         cursor: text;
         >.checkbox{
           display: flex;
-          justify-content: end;
+          justify-content: flex-end;
           padding-right: 5px;
           align-items: center;
           >.drag-icon{
@@ -266,20 +293,48 @@ const dragover = (e: any) => {
           width: 33.3%;
           border-right: 1px solid #eee;
           border-top: 1px solid #eee;
-          >div{
-            width: 100%;
+          >.edit-area{
             margin: 5px;
-            span{
+            // overflow: hidden;
+            flex:1;
+            width: 0;
+            >span{
+              display: block;
               padding-left: 5px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
             }
           }
           .edit-item{
             width: 100%;
             padding-left: 5px;
-            background-color: #000000;
+            z-index: 10;
+            background-color: #fff;
+            word-wrap:break-word;
+            word-break:break-all;
+            position: relative;
+            border: 1px solid #eee;
             &:focus-visible{
               outline: none!important;
               background-color: #fff;
+            }
+            }
+          >.delete-button{
+            opacity: 0;
+            display: flex;
+            position: absolute;
+            right: 0px;
+            top: 0;
+            bottom: 0;
+            justify-content: center;
+            align-items: center;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #fff;
+            &:hover{
+              border-radius: 3px;
+              background-color: #ddd;
             }
           }
         }
@@ -290,18 +345,7 @@ const dragover = (e: any) => {
         &:focus-within{
           background-color: #eeeeee55;
         }
-        .delete-button{
-          opacity: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding: 5px;
-          cursor: pointer;
-          &:hover{
-            border-radius: 3px;
-            background-color: #ddd;
-          }
-        }
+        position: relative;
         &:hover .delete-button, &:hover .drag-icon{
           opacity: 1;
         }
