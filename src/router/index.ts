@@ -104,13 +104,41 @@ export const constantRoutes = [
     children: [
       {
         path: '/manage/job',
-        name: 'server-detail',
+        name: 'job-manage',
         component: async () => await import('@/views/Manage/Job.vue'),
         meta: {
           title: {
             zhCn: '任务管理',
             en: 'Job Manage',
             zhTw: '任务管理',
+          },
+          hidden: false,
+        },
+        props: true,
+      },
+      {
+        path: '/manage/request',
+        name: 'request-manage',
+        component: async () => await import('@/views/Manage/Request.vue'),
+        meta: {
+          title: {
+            zhCn: '请求管理',
+            en: 'Request Manage',
+            zhTw: '请求管理',
+          },
+          hidden: false,
+        },
+        props: true,
+      },
+      {
+        path: '/manage/requestEdit',
+        name: 'request-edit',
+        component: async () => await import('@/views/Manage/components/ReqForm.vue'),
+        meta: {
+          title: {
+            zhCn: '请求编辑器',
+            en: 'Request Editor',
+            zhTw: '请求编辑器',
           },
           hidden: false,
         },

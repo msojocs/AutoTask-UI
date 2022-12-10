@@ -34,7 +34,7 @@ const request = new Request({
       // Do something with response data
       console.log('response', response)
 
-      if (response.status !== 200) return Promise.reject(response)
+      if (response.status / 100 !== 2) return Promise.reject(response)
 
       const resp = response.data
       if (resp && resp.code !== 0) {

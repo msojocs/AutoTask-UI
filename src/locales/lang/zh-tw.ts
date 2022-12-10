@@ -2,7 +2,7 @@ export default {
   name: 'zh-tw',
   ems: {
     sys: {
-      name: 'EAP监控系统',
+      name: '自动化任务系统',
     },
   },
 }

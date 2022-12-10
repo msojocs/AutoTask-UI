@@ -11,17 +11,7 @@ export default {
   name: 'en',
   ems: {
     sys: {
-      name: 'EAP Monitoring System',
-    },
-    monitor: {
-      server: 'Server',
-      factory: 'Factory',
-      appCount: 'App Num',
-      workTime: 'Work Time',
-      memory: 'Memory',
-    },
-    button: {
-      refresh: 'Refresh',
+      name: 'Automation Task System',
     },
   },
 }

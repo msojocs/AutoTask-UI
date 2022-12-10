@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 import vueI18n from '@intlify/vite-plugin-vue-i18n'
+import vueJsx from '@vitejs/plugin-vue-jsx' // 要安装@vitejs/plugin-vue-jsx
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,6 +16,7 @@ export default defineConfig({
     vueI18n({
       include: path.resolve(__dirname, './src/locales/**'),
     }),
+    vueJsx({}),
   ],
   resolve: {
     alias: {
