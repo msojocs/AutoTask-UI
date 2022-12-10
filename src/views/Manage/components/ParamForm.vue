@@ -3,7 +3,7 @@
     <div class="title">
       <span>Query Params</span>
     </div>
-    <div class="edit">
+    <div v-if="editMode === 'kv'" class="kv-edit">
       <div class="header">
         <div style="width: 40px;border-left: 1px solid #eee;">
           &nbsp;
@@ -16,7 +16,7 @@
         </div>
         <div>
           <span>DESCRIPTION</span>
-          <div>
+          <div class="change-mode" @click="onChangeMode">
             <!-- 模式切换 -->
             Bulk Edit
           </div>
@@ -25,7 +25,7 @@
       <div class="body test_wrapper" @dragover="dragover($event)">
         <transition-group name="sort">
           <div
-            v-for="(item, index) in dataList" :key="item.id"
+            v-for="(item, index) in kvData" :key="item.id"
             class="row sort-item"
             :draggable="draggable"
             @dragstart="dragstart(item)"
@@ -37,11 +37,11 @@
             <div
               style="width: 40px;border-left: 1px solid #eee;"
               class="checkbox"
-              @mousedown="draggable = true && index != dataList.length - 1"
+              @mousedown="draggable = true && index != kvData.length - 1"
               @mouseup="draggable = false"
             >
-              <drag-icon v-if="item.edit == '' && index != dataList.length - 1" class="drag-icon" />
-              <el-checkbox v-if="index != dataList.length - 1" v-model="item.enable" />
+              <drag-icon v-if="item.edit == '' && index != kvData.length - 1" class="drag-icon" />
+              <el-checkbox v-if="index != kvData.length - 1" v-model="item.enable" />
             </div>
             <div @click="item.edit = 'key'">
               <div class="edit-area">
@@ -50,14 +50,14 @@
                   :id="item.id"
                   :ref="edit"
                   class="edit-item"
-                  :placeholder="index == dataList.length - 1 ? 'Key' : ''"
+                  :placeholder="index == kvData.length - 1 ? 'Key' : ''"
                   contenteditable="true"
                   @input="item.key = ($event.target as any).innerHTML"
                   @blur="onBlur(item)"
                 >
                   {{ item.key }}
                 </div>
-                <span v-else>{{ item.key || (index == dataList.length - 1 ? 'Key' : '') }}</span>
+                <span v-else>{{ item.key || (index == kvData.length - 1 ? 'Key' : '') }}</span>
               </div>
             </div>
             <div @click="item.edit = 'value'">
@@ -67,14 +67,14 @@
                   :id="item.id"
                   :ref="edit"
                   class="edit-item"
-                  :placeholder="index == dataList.length - 1 ? 'Value' : ''"
+                  :placeholder="index == kvData.length - 1 ? 'Value' : ''"
                   contenteditable="true"
                   @input="item.value = ($event.target as any).innerHTML"
                   @blur="onBlur(item)"
                 >
                   {{ item.value }}
                 </div>
-                <span v-else>{{ item.value || (index == dataList.length - 1 ? 'Value' : '') }}</span>
+                <span v-else>{{ item.value || (index == kvData.length - 1 ? 'Value' : '') }}</span>
               </div>
             </div>
             <div @click="item.edit = 'desc'">
@@ -84,17 +84,17 @@
                   :id="item.id"
                   :ref="edit"
                   class="edit-item"
-                  :placeholder="index == dataList.length - 1 ? 'Description' : ''"
+                  :placeholder="index == kvData.length - 1 ? 'Description' : ''"
                   contenteditable="true"
                   @input="item.desc = ($event.target as any).innerHTML"
                   @blur="onBlur(item)"
                 >
                   {{ item.desc }}
                 </div>
-                <span v-else>{{ item.desc || (index == dataList.length - 1 ? 'Description' : '') }}</span>
+                <span v-else>{{ item.desc || (index == kvData.length - 1 ? 'Description' : '') }}</span>
               </div>
               <div
-                v-if="item.edit == '' && index < dataList.length - 1"
+                v-if="item.edit == '' && index < kvData.length - 1"
                 class="delete-button"
                 style="width: 25px;"
                 @click.stop="doDeleteItem(index)"
@@ -107,6 +107,20 @@
         </transition-group>
       </div>
     </div>
+    <div v-else class="bulk-edit">
+      <div class="header">
+        <div />
+        <div>
+          <div class="change-mode" @click="onChangeMode">
+            <!-- 模式切换 -->
+            Key-Value Edit
+          </div>
+        </div>
+      </div>
+      <div class="body test_wrapper" @dragover="dragover($event)">
+        <el-input v-model="bulkData" type="textarea" :rows="7" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -116,9 +130,10 @@ import DragIcon from './DragIcon.vue'
 const oldData = ref(null) // 开始排序时按住的旧数据
 const newData = ref(null) // 拖拽过程的数据
 const draggable = ref(false)
+const editMode = ref<'kv'|'bulk'>('kv')
 
 // 列表数据
-const dataList = ref([
+const kvData = ref([
   {
     id: '1',
     enable: false,
@@ -160,6 +175,7 @@ const dataList = ref([
     desc: '',
   },
 ])
+const bulkData = ref('')
 
 const edit = (e: any) => {
   console.log('input edit:', e)
@@ -176,22 +192,75 @@ const onBlur = (e: any) => {
 }
 const doDeleteItem = (index: number) => {
   console.log('doDeleteItem:', index)
-  dataList.value.splice(index, 1)
+  kvData.value.splice(index, 1)
 }
 const newDataInput = (e: any) => {
   console.log('newDataInput')
 
-  const last = dataList.value[dataList.value.length - 1]
+  const last = kvData.value[kvData.value.length - 1]
   if (!(last.key + last.value + last.desc)) return
 
-  dataList.value.push({
-    id: `${dataList.value.length + 1}`,
+  kvData.value.push({
+    id: `${kvData.value.length + 1}`,
     edit: '',
     key: '',
     value: '',
     desc: '',
     enable: true,
   })
+}
+const onChangeMode = () => {
+  if (editMode.value === 'kv') {
+    // kv -> bulk
+    bulkData.value = ''
+    for (let i = 0; i < kvData.value.length - 1; i++) {
+      const data = kvData.value[i]
+      bulkData.value += `${data.enable ? '' : '//'}${data.key}:${data.value}\n`
+    }
+    bulkData.value = bulkData.value.trimEnd()
+  }
+  else {
+    // bulk -> kv
+    const lines = bulkData.value.split('\n')
+    const tempData = [
+      {
+        id: '1',
+        enable: true,
+        edit: '',
+        key: '',
+        value: '',
+        desc: '',
+      },
+    ]
+    for (let i = 0; i < lines.length; i++) {
+      // 数组不够，补一个
+      if (i === tempData.length - 1) {
+        tempData.push({
+          id: `${tempData.length}`,
+          enable: true,
+          edit: '',
+          key: '',
+          value: '',
+          desc: '',
+        })
+      }
+      // 可能已有
+      if (kvData.value[i])
+        tempData[i].desc = kvData.value[i].desc
+
+      const ele = tempData[i]
+      let line = lines[i]
+      if (line.startsWith('//')) {
+        ele.enable = false
+        line = line.substring(2)
+      }
+      const d = line.split(':')
+      ele.key = d[0] || ''
+      ele.value = d[1] || ''
+    }
+    kvData.value = tempData
+  }
+  editMode.value = editMode.value === 'kv' ? 'bulk' : 'kv'
 }
 
 const dragstart = (value: any) => {
@@ -209,14 +278,14 @@ const dragend = (value: any, e: any) => {
   console.log('dragend')
   draggable.value = false
   if (oldData.value !== newData.value) {
-    const oldIndex = dataList.value.indexOf(oldData.value)
-    const newIndex = dataList.value.indexOf(newData.value)
-    const newItems = [...dataList.value]
+    const oldIndex = kvData.value.indexOf(oldData.value)
+    const newIndex = kvData.value.indexOf(newData.value)
+    const newItems = [...kvData.value]
     // 删除老的节点
     newItems.splice(oldIndex, 1)
     // 在列表中目标位置增加新的节点
     newItems.splice(newIndex, 0, oldData.value)
-    dataList.value = [...newItems]
+    kvData.value = [...newItems]
   }
 }
 
@@ -236,7 +305,7 @@ const dragover = (e: any) => {
   .title {
     color: red;
   }
-  .edit{
+  .kv-edit{
     background-color: #fff;
     .header{
       display: flex;
@@ -256,7 +325,8 @@ const dragover = (e: any) => {
       >div:last-child{
         justify-content: space-between;
         align-items: center;
-        >div{
+        >.change-mode{
+          cursor: pointer;
           height: 100%;
           padding-right: 10px;
           padding-left: 10px;
@@ -348,6 +418,38 @@ const dragover = (e: any) => {
         position: relative;
         &:hover .delete-button, &:hover .drag-icon{
           opacity: 1;
+        }
+      }
+    }
+  }
+  .bulk-edit{
+    background-color: #fff;
+    .header{
+      display: flex;
+      height: 35px;
+      align-items: center;
+      justify-content: right;
+      border-left: 1px solid #eee;
+      border-top: 1px solid #eee;
+      border-right: 1px solid #eee;
+      >div{
+        display: block;
+        height: 100%;
+        // border-right: 1px solid #eee;
+        // border-top: 1px solid #eee;
+        white-space: nowrap;
+      }
+      >div:last-child{
+        justify-content: space-between;
+        align-items: center;
+        >.change-mode{
+          cursor: pointer;
+          height: 100%;
+          padding-right: 10px;
+          padding-left: 10px;
+          border-left: 1px solid #eee;
+          display: flex;
+          align-items: center;
         }
       }
     }
