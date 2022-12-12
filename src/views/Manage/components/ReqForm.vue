@@ -14,7 +14,7 @@
         </el-input>
       </div>
       <div>
-        <el-tabs active-name="headers">
+        <el-tabs active-name="body">
           <el-tab-pane label="Params" name="params">
             <ParamForm />
           </el-tab-pane>
@@ -25,7 +25,7 @@
             <HeaderForm />
           </el-tab-pane>
           <el-tab-pane label="Body" name="body">
-            Body
+            <BodyForm />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
 import AuthForm from './AuthForm.vue'
+import BodyForm from './BodyForm.vue'
 import HeaderForm from './HeaderForm.vue'
 import ParamForm from './ParamForm.vue'
 </script>
