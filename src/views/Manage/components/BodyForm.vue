@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-const bodyMode = ref('formdata')
+const bodyMode = ref('raw')
 const editCmp = shallowRef()
 const editorLang = ref('text')
 const editCmps = {
