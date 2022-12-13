@@ -126,55 +126,23 @@
 
 <script lang="ts" setup>
 import DragIcon from './DragIcon.vue'
+import type { ParamDataType } from './types'
 
+const props = defineProps({
+  params: {
+    required: true,
+    type: Array<ParamDataType>,
+  },
+})
+
+const kvData = ref(props.params)
 const oldData = ref(null) // 开始排序时按住的旧数据
 const newData = ref(null) // 拖拽过程的数据
 const draggable = ref(false)
 const editMode = ref<'kv'|'bulk'>('kv')
 
 // 列表数据
-const kvData = ref([
-  {
-    id: '1',
-    enable: false,
-    edit: '',
-    key: 'k1',
-    value: 'v1',
-    desc: '测试一号',
-  },
-  {
-    id: '2',
-    enable: false,
-    edit: '',
-    key: 'k2',
-    value: 'v299999999999999999999988888888888888888899999999999999999999999999999999998',
-    desc: '测试二号',
-  },
-  {
-    id: '3',
-    enable: false,
-    edit: '',
-    key: 'k3',
-    value: 'v3',
-    desc: '测试三号',
-  },
-  {
-    id: '4',
-    enable: true,
-    edit: '',
-    key: 'k4',
-    value: 'v4',
-    desc: '测试四号',
-  },
-  {
-    id: '4',
-    enable: true,
-    edit: '',
-    key: '',
-    value: '',
-    desc: '',
-  },
-])
+// const kvData = ref()
 const bulkData = ref('')
 
 const edit = (e: any) => {

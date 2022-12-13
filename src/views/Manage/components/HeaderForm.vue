@@ -1,5 +1,5 @@
 <template>
-  <div class="request-form">
+  <div class="request-form" @change="onHeaderChange">
     <div class="title">
       <span class="name">Headers</span>
       <div class="hide-button" @click="showAuto = !showAuto">
@@ -28,7 +28,7 @@
       <div class="body test_wrapper" @dragover="dragover($event)">
         <transition-group name="sort">
           <template
-            v-for="(item, index) in kvData"
+            v-for="(item, index) in headerData"
             :key="item.id"
           >
             <template v-if="showAuto && item.auto">
@@ -44,11 +44,11 @@
                 <div
                   style="width: 40px;border-left: 1px solid #eee;"
                   class="checkbox"
-                  @mousedown="draggable = true && index != kvData.length - 1"
+                  @mousedown="draggable = true && index != headerData.length - 1"
                   @mouseup="draggable = false"
                 >
                   <!-- <drag-icon v-if="item.edit == '' && index != kvData.length - 1" class="drag-icon" /> -->
-                  <el-checkbox v-if="index != kvData.length - 1" v-model="item.enable" />
+                  <el-checkbox v-if="index != headerData.length - 1" v-model="item.enable" />
                 </div>
                 <div @click="item.edit = 'key'">
                   <div class="edit-area">
@@ -57,7 +57,7 @@
                       :id="item.id"
                       :ref="edit"
                       class="edit-item"
-                      :placeholder="index == kvData.length - 1 ? 'Key' : ''"
+                      :placeholder="index == headerData.length - 1 ? 'Key' : ''"
                       contenteditable="true"
                       @input="item.key = ($event.target as any).innerHTML"
                       @blur="onBlur(item)"
@@ -65,7 +65,7 @@
                     >
                       {{ item.key }}
                     </div>
-                    <span v-else>{{ item.key || (index == kvData.length - 1 ? 'Key' : '') }}</span>
+                    <span v-else>{{ item.key || (index == headerData.length - 1 ? 'Key' : '') }}</span>
                   </div>
                 </div>
                 <div @click="item.edit = 'value'">
@@ -75,7 +75,7 @@
                       :id="item.id"
                       :ref="edit"
                       class="edit-item"
-                      :placeholder="index == kvData.length - 1 ? 'Value' : ''"
+                      :placeholder="index == headerData.length - 1 ? 'Value' : ''"
                       contenteditable="true"
                       @input="item.value = ($event.target as any).innerHTML"
                       @blur="onBlur(item)"
@@ -83,7 +83,7 @@
                     >
                       {{ item.value }}
                     </div>
-                    <span v-else>{{ item.value || (index == kvData.length - 1 ? 'Value' : '') }}</span>
+                    <span v-else>{{ item.value || (index == headerData.length - 1 ? 'Value' : '') }}</span>
                   </div>
                 </div>
                 <div @click="item.edit = 'desc'">
@@ -93,7 +93,7 @@
                       :id="item.id"
                       :ref="edit"
                       class="edit-item"
-                      :placeholder="index == kvData.length - 1 ? 'Description' : ''"
+                      :placeholder="index == headerData.length - 1 ? 'Description' : ''"
                       contenteditable="true"
                       @input="item.desc = ($event.target as any).innerHTML"
                       @blur="onBlur(item)"
@@ -101,7 +101,7 @@
                     >
                       {{ item.desc }}
                     </div>
-                    <span v-else>{{ item.desc || (index == kvData.length - 1 ? 'Description' : '') }}</span>
+                    <span v-else>{{ item.desc || (index == headerData.length - 1 ? 'Description' : '') }}</span>
                   </div>
                   <!-- <div
                     v-if="item.edit == '' && index < kvData.length - 1"
@@ -127,11 +127,11 @@
                 <div
                   style="width: 40px;border-left: 1px solid #eee;"
                   class="checkbox"
-                  @mousedown="draggable = true && index != kvData.length - 1"
+                  @mousedown="draggable = true && index != headerData.length - 1"
                   @mouseup="draggable = false"
                 >
-                  <drag-icon v-if="item.edit == '' && index != kvData.length - 1" class="drag-icon" />
-                  <el-checkbox v-if="index != kvData.length - 1" v-model="item.enable" />
+                  <drag-icon v-if="item.edit == '' && index != headerData.length - 1" class="drag-icon" />
+                  <el-checkbox v-if="index != headerData.length - 1" v-model="item.enable" />
                 </div>
                 <div @click="item.edit = 'key'">
                   <div class="edit-area">
@@ -140,14 +140,14 @@
                       :id="item.id"
                       :ref="edit"
                       class="edit-item"
-                      :placeholder="index == kvData.length - 1 ? 'Key' : ''"
+                      :placeholder="index == headerData.length - 1 ? 'Key' : ''"
                       contenteditable="true"
                       @input="item.key = ($event.target as any).innerHTML"
                       @blur="onBlur(item)"
                     >
                       {{ item.key }}
                     </div>
-                    <span v-else>{{ item.key || (index == kvData.length - 1 ? 'Key' : '') }}</span>
+                    <span v-else>{{ item.key || (index == headerData.length - 1 ? 'Key' : '') }}</span>
                   </div>
                 </div>
                 <div @click="item.edit = 'value'">
@@ -157,14 +157,14 @@
                       :id="item.id"
                       :ref="edit"
                       class="edit-item"
-                      :placeholder="index == kvData.length - 1 ? 'Value' : ''"
+                      :placeholder="index == headerData.length - 1 ? 'Value' : ''"
                       contenteditable="true"
                       @input="item.value = ($event.target as any).innerHTML"
                       @blur="onBlur(item)"
                     >
                       {{ item.value }}
                     </div>
-                    <span v-else>{{ item.value || (index == kvData.length - 1 ? 'Value' : '') }}</span>
+                    <span v-else>{{ item.value || (index == headerData.length - 1 ? 'Value' : '') }}</span>
                   </div>
                 </div>
                 <div @click="item.edit = 'desc'">
@@ -174,17 +174,17 @@
                       :id="item.id"
                       :ref="edit"
                       class="edit-item"
-                      :placeholder="index == kvData.length - 1 ? 'Description' : ''"
+                      :placeholder="index == headerData.length - 1 ? 'Description' : ''"
                       contenteditable="true"
                       @input="item.desc = ($event.target as any).innerHTML"
                       @blur="onBlur(item)"
                     >
                       {{ item.desc }}
                     </div>
-                    <span v-else>{{ item.desc || (index == kvData.length - 1 ? 'Description' : '') }}</span>
+                    <span v-else>{{ item.desc || (index == headerData.length - 1 ? 'Description' : '') }}</span>
                   </div>
                   <div
-                    v-if="item.edit == '' && index < kvData.length - 1"
+                    v-if="item.edit == '' && index < headerData.length - 1"
                     class="delete-button"
                     style="width: 25px;"
                     @click.stop="doDeleteItem(index)"
@@ -218,71 +218,23 @@
 
 <script lang="ts" setup>
 import DragIcon from './DragIcon.vue'
+import type { HeaderDataType } from './types'
+
+const props = defineProps({
+  headers: {
+    required: true,
+    type: Array<HeaderDataType>,
+  },
+})
 
 const oldData = ref(null) // 开始排序时按住的旧数据
 const newData = ref(null) // 拖拽过程的数据
 const draggable = ref(false)
 const editMode = ref<'kv'|'bulk'>('kv')
 const showAuto = ref(false)
-interface KVDataType {
-  id: string
-  enable: boolean
-  edit: string
-  key: string
-  value: string
-  desc: string
-  auto: boolean
-}
-// 列表数据
-const kvData = ref<KVDataType[]>([
-  {
-    id: '1',
-    enable: false,
-    edit: '',
-    key: 'k1',
-    value: 'v1',
-    desc: '测试一号',
-    auto: true,
-  },
-  {
-    id: '2',
-    enable: false,
-    edit: '',
-    key: 'k2',
-    value: 'v299999999999999999999988888888888888888899999999999999999999999999999999998',
-    desc: '测试二号',
-    auto: true,
-  },
-  {
-    id: '3',
-    enable: false,
-    edit: '',
-    key: 'k3',
-    value: 'v3',
-    desc: '自动三号',
-    auto: true,
-  },
-  {
-    id: '4',
-    enable: true,
-    edit: '',
-    key: 'k4',
-    value: 'v4',
-    desc: '测试四号',
-    auto: false,
-  },
-  {
-    id: '5',
-    enable: true,
-    edit: '',
-    key: '',
-    value: '',
-    desc: '',
-    auto: false,
-  },
-])
 const bulkData = ref('')
 
+const headerData = ref(props.headers)
 const edit = (e: any) => {
   console.log('input edit:', e)
   if (e && e.focus) {
@@ -302,16 +254,16 @@ const onBlur = (e: any) => {
 }
 const doDeleteItem = (index: number) => {
   console.log('doDeleteItem:', index)
-  kvData.value.splice(index, 1)
+  headerData.value.splice(index, 1)
 }
 const newDataInput = (e: any) => {
   console.log('newDataInput')
 
-  const last = kvData.value[kvData.value.length - 1]
+  const last = headerData.value[headerData.value.length - 1]
   if (!(last.key + last.value + last.desc)) return
 
-  kvData.value.push({
-    id: `${kvData.value.length + 1}`,
+  headerData.value.push({
+    id: `${headerData.value.length + 1}`,
     edit: '',
     key: '',
     value: '',
@@ -324,8 +276,8 @@ const onChangeMode = () => {
   if (editMode.value === 'kv') {
     // kv -> bulk
     bulkData.value = ''
-    for (let i = 0; i < kvData.value.length - 1; i++) {
-      const data = kvData.value[i]
+    for (let i = 0; i < headerData.value.length - 1; i++) {
+      const data = headerData.value[i]
       bulkData.value += `${data.enable ? '' : '//'}${data.key}:${data.value}\n`
     }
     bulkData.value = bulkData.value.trimEnd()
@@ -333,7 +285,7 @@ const onChangeMode = () => {
   else {
     // bulk -> kv
     const lines = bulkData.value.split('\n')
-    const tempData: KVDataType[] = [
+    const tempData: HeaderDataType[] = [
       {
         id: '1',
         enable: true,
@@ -358,8 +310,8 @@ const onChangeMode = () => {
         })
       }
       // 可能已有
-      if (kvData.value[i])
-        tempData[i].desc = kvData.value[i].desc
+      if (headerData.value[i])
+        tempData[i].desc = headerData.value[i].desc
 
       const ele = tempData[i]
       let line = lines[i]
@@ -371,11 +323,14 @@ const onChangeMode = () => {
       ele.key = d[0] || ''
       ele.value = d[1] || ''
     }
-    kvData.value = tempData
+    headerData.value = tempData
   }
   editMode.value = editMode.value === 'kv' ? 'bulk' : 'kv'
 }
 
+const onHeaderChange = () => {
+  console.log('change')
+}
 const dragstart = (value: any) => {
   oldData.value = value
 }
@@ -391,14 +346,14 @@ const dragend = (value: any, e: any) => {
   console.log('dragend')
   draggable.value = false
   if (oldData.value !== newData.value) {
-    const oldIndex = kvData.value.indexOf(oldData.value)
-    const newIndex = kvData.value.indexOf(newData.value)
-    const newItems = [...kvData.value]
+    const oldIndex = headerData.value.indexOf(oldData.value)
+    const newIndex = headerData.value.indexOf(newData.value)
+    const newItems = [...headerData.value]
     // 删除老的节点
     newItems.splice(oldIndex, 1)
     // 在列表中目标位置增加新的节点
     newItems.splice(newIndex, 0, oldData.value)
-    kvData.value = [...newItems]
+    headerData.value = [...newItems]
   }
 }
 
