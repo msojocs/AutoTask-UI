@@ -167,14 +167,14 @@ const newDataInput = (e: any) => {
 
   const last = kvData.value[kvData.value.length - 1]
   if (!(last.key + last.value + last.desc)) return
-
+  last.enable = true
   kvData.value.push({
     id: `${kvData.value.length + 1}`,
     edit: '',
     key: '',
     value: '',
     desc: '',
-    enable: true,
+    enable: undefined,
   })
 }
 const onChangeMode = () => {
@@ -190,10 +190,10 @@ const onChangeMode = () => {
   else {
     // bulk -> kv
     const lines = bulkData.value.split('\n')
-    const tempData = [
+    const tempData: ParamDataType[] = [
       {
         id: '1',
-        enable: true,
+        enable: undefined,
         edit: '',
         key: '',
         value: '',
@@ -205,7 +205,7 @@ const onChangeMode = () => {
       if (i === tempData.length - 1) {
         tempData.push({
           id: `${tempData.length}`,
-          enable: true,
+          enable: undefined,
           edit: '',
           key: '',
           value: '',
@@ -340,7 +340,7 @@ const dragover = (e: any) => {
               display: block;
               padding-left: 5px;
               overflow: hidden;
-              white-space: nowrap;
+              white-space: pre;
               text-overflow: ellipsis;
             }
           }
@@ -349,7 +349,7 @@ const dragover = (e: any) => {
             padding-left: 5px;
             z-index: 10;
             background-color: #fff;
-            word-wrap:break-word;
+            white-space: pre-wrap;
             word-break:break-all;
             position: relative;
             border: 1px solid #eee;
@@ -357,7 +357,7 @@ const dragover = (e: any) => {
               outline: none!important;
               background-color: #fff;
             }
-            }
+          }
           >.delete-button{
             opacity: 0;
             display: flex;

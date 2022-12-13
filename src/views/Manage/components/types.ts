@@ -36,7 +36,7 @@ export interface HeaderDataType {
 // 参数数据类型
 export interface ParamDataType {
   id: string
-  enable: boolean
+  enable: boolean | undefined
   edit: string
   key: string
   value: string

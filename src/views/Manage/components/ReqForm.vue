@@ -5,7 +5,7 @@
     <div class="m-5">
       <div class="url">
         <!-- URL信息 -->
-        <el-input v-model="request.url">
+        <el-input v-model="url">
           <template #prepend>
             <el-select v-model="request.method">
               <el-option value="GET" label="GET" />
@@ -18,7 +18,7 @@
         </el-button>
       </div>
       <div>
-        <el-tabs active-name="body">
+        <el-tabs v-model="configType">
           <el-tab-pane label="Params" name="params">
             <ParamForm :params="request.params" />
           </el-tab-pane>
@@ -42,9 +42,9 @@ import AuthForm from './AuthForm.vue'
 import BodyForm from './BodyForm.vue'
 import HeaderForm from './HeaderForm.vue'
 import ParamForm from './ParamForm.vue'
-import type { RequestType } from './types'
+import type { ParamDataType, RequestType } from './types'
 
-const request: RequestType = {
+const request = reactive<RequestType>({
   method: 'GET',
   url: 'https://httpbin.org/post',
   params: [
@@ -66,7 +66,7 @@ const request: RequestType = {
     },
     {
       id: '3',
-      enable: false,
+      enable: true,
       edit: '',
       key: 'k3',
       value: 'v3',
@@ -76,13 +76,13 @@ const request: RequestType = {
       id: '4',
       enable: true,
       edit: '',
-      key: 'k4',
-      value: 'v4',
+      key: ' 7',
+      value: '',
       desc: '测试四号',
     },
     {
-      id: '4',
-      enable: true,
+      id: '5',
+      enable: undefined,
       edit: '',
       key: '',
       value: '',
@@ -138,11 +138,84 @@ const request: RequestType = {
     t: '',
     data: '',
   },
-}
+})
+// 标记K值是否有携带等号
+const equlaMark = ref<string[]>([])
+const url = computed({
+  get () {
+    const u = request.url
+    let ps = ''
+    for (let i = 0; i < request.params.length - 1; i++) {
+      const p = request.params[i]
+      if (p.enable) {
+        ps += `&${p.key}`
+        if (p.value) ps += `=${p.value}`
+        else if (equlaMark.value.includes(p.key)) ps += '='
+      }
+    }
+    console.log('ps:', ps)
+    if (ps)
+      ps = `?${ps.substring(1)}`
+    return u + ps
+  },
+  set (v: string) {
+    console.log('set url', v)
+    const d = v.split('?')
+    if (d[0]) request.url = d[0]
+    if (d[1]) {
+      const ps = d[1].split('&')
+      const tempData: ParamDataType[] = []
+      for (const p of ps) {
+        const kv: string[] = []
+
+        // 有等号
+        if (p.includes('=')) {
+          kv[0] = p.slice(0, p.indexOf('='))
+          kv[1] = p.slice(p.indexOf('=') + 1)
+          equlaMark.value.push(kv[0])
+        }
+        else {
+          kv[0] = p
+          equlaMark.value = equlaMark.value.filter(e => e !== kv[0])
+        }
+        const data: ParamDataType = {
+          enable: true,
+          key: kv[0],
+          value: kv[1] || '',
+          id: `${tempData.length}`,
+          edit: '',
+          desc: '',
+        }
+        tempData.push(data)
+      }
+      for (let i = 0; i < request.params.length - 1; i++) {
+        console.log('request.params:', i)
+        const param = request.params[i]
+        if (!param.enable) continue
+        const index = tempData.findIndex(e => e.key === param.key)
+        if (index === -1) {
+          // 没找到
+          equlaMark.value = equlaMark.value.filter(e => e !== param.key)
+          request.params.splice(i--, 1)
+        }
+        else {
+          // 找到
+          param.value = tempData[index].value
+          tempData.splice(index, 1)
+        }
+      }
+      // 剩余的
+      request.params.splice(request.params.length - 1, 0, ...tempData)
+    }
+  },
+
+})
 
 const sendRequest = () => {
   console.log('使用服务器发送请求')
 }
+
+const configType = ref('params')
 
 </script>
 
