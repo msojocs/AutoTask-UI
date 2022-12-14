@@ -177,10 +177,12 @@ const bulkData = ref('')
 const edit = (e: any) => {
   console.log('input edit:', e)
   if (e && e.focus) {
-    e.focus()
-    const range = window.getSelection() // 创建range
-    range?.selectAllChildren(e) // range 选择obj下所有子内容
-    range?.collapseToEnd() // 光标移至最后
+    if (document.activeElement !== e) {
+      e.focus()
+      const range = window.getSelection() // 创建range
+      range?.selectAllChildren(e) // range 选择obj下所有子内容
+      range?.collapseToEnd() // 光标移至最后
+    }
   }
 }
 const onBlur = (e: any) => {

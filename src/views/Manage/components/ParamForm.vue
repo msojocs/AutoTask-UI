@@ -48,7 +48,7 @@
                 <div
                   v-if="item.edit == 'key'"
                   :id="item.id"
-                  :ref="edit"
+                  :ref="editRef"
                   class="edit-item"
                   :placeholder="index == kvData.length - 1 ? 'Key' : ''"
                   contenteditable="true"
@@ -65,7 +65,7 @@
                 <div
                   v-if="item.edit == 'value'"
                   :id="item.id"
-                  :ref="edit"
+                  :ref="editRef"
                   class="edit-item"
                   :placeholder="index == kvData.length - 1 ? 'Value' : ''"
                   contenteditable="true"
@@ -82,7 +82,7 @@
                 <div
                   v-if="item.edit == 'desc'"
                   :id="item.id"
-                  :ref="edit"
+                  :ref="editRef"
                   class="edit-item"
                   :placeholder="index == kvData.length - 1 ? 'Description' : ''"
                   contenteditable="true"
@@ -145,13 +145,15 @@ const editMode = ref<'kv'|'bulk'>('kv')
 // const kvData = ref()
 const bulkData = ref('')
 
-const edit = (e: any) => {
+const editRef = (e: any) => {
   console.log('input edit:', e)
   if (e && e.focus) {
-    e.focus()
-    const range = window.getSelection() // 创建range
-    range?.selectAllChildren(e) // range 选择obj下所有子内容
-    range?.collapseToEnd() // 光标移至最后
+    if (document.activeElement !== e) {
+      e.focus()
+      const range = window.getSelection() // 创建range
+      range?.selectAllChildren(e) // range 选择obj下所有子内容
+      range?.collapseToEnd() // 光标移至最后
+    }
   }
 }
 const onBlur = (e: any) => {

@@ -238,10 +238,12 @@ const headerData = ref(props.headers)
 const edit = (e: any) => {
   console.log('input edit:', e)
   if (e && e.focus) {
-    e.focus()
-    const range = window.getSelection() // 创建range
-    range?.selectAllChildren(e) // range 选择obj下所有子内容
-    range?.collapseToEnd() // 光标移至最后
+    if (document.activeElement !== e) {
+      e.focus()
+      const range = window.getSelection() // 创建range
+      range?.selectAllChildren(e) // range 选择obj下所有子内容
+      range?.collapseToEnd() // 光标移至最后
+    }
   }
 }
 const blockKeyDown = (e: any) => {
@@ -278,7 +280,8 @@ const onChangeMode = () => {
     bulkData.value = ''
     for (let i = 0; i < headerData.value.length - 1; i++) {
       const data = headerData.value[i]
-      bulkData.value += `${data.enable ? '' : '//'}${data.key}:${data.value}\n`
+      if (!data.auto)
+        bulkData.value += `${data.enable ? '' : '//'}${data.key}:${data.value}\n`
     }
     bulkData.value = bulkData.value.trimEnd()
   }
@@ -323,7 +326,10 @@ const onChangeMode = () => {
       ele.key = d[0] || ''
       ele.value = d[1] || ''
     }
-    headerData.value = tempData
+    // 保留auto
+    headerData.value = headerData.value.filter(e => e.auto)
+    // 填入数据
+    headerData.value.push(...tempData)
   }
   editMode.value = editMode.value === 'kv' ? 'bulk' : 'kv'
 }
