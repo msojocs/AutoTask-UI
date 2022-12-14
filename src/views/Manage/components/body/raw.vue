@@ -2,6 +2,7 @@
   <div>
     <!-- editor -->
     <Editor
+      v-model:value="rawString"
       height="80vh"
       theme="vs-dark"
       default-language="javascript"
@@ -15,13 +16,28 @@
 <script setup lang="ts">
 import Editor from '@guolao/vue-monaco-editor'
 
+const emits = defineEmits(['update:modelValue'])
+
 const props = defineProps({
   lang: {
-    default: '',
+    default: 'text',
+  },
+  modelValue: {
+    required: true,
+    type: String,
   },
 })
 
-const code = ref('console.log(\'Hello, world!\')')
+const rawString = computed({
+  get () {
+    return props.modelValue
+  },
+  set (v: string) {
+    console.log('update rawString:', v)
+    emits('update:modelValue', v)
+  },
+})
+
 const editorRef = shallowRef()
 
 const log = console.log

@@ -29,24 +29,29 @@
             <HeaderForm :headers="request.header" />
           </el-tab-pane>
           <el-tab-pane label="Body" name="body">
-            <BodyForm />
+            <BodyForm :body="request.body" />
           </el-tab-pane>
         </el-tabs>
+      </div>
+      <div class="result">
+        <pre>{{ requestResult }}</pre>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { testRequest } from './api'
 import AuthForm from './AuthForm.vue'
 import BodyForm from './BodyForm.vue'
 import HeaderForm from './HeaderForm.vue'
 import ParamForm from './ParamForm.vue'
-import type { ParamDataType, RequestType } from './types'
+import type { ParamDataType, RequestBodyType, RequestType } from './types'
 
 const request = reactive<RequestType>({
-  method: 'GET',
+  method: 'POST',
   url: 'https://httpbin.org/post',
+  proxy: 'http://127.0.0.1:8888',
   params: [
     {
       id: '1',
@@ -139,6 +144,8 @@ const request = reactive<RequestType>({
     data: '',
   },
 })
+const requestResult = ref('')
+
 // 标记K值是否有携带等号
 const equlaMark = ref<string[]>([])
 const url = computed({
@@ -213,6 +220,38 @@ const url = computed({
 
 const sendRequest = () => {
   console.log('使用服务器发送请求')
+  const header: Record<string, string> = {}
+  for (let i = 0; i < request.header.length - 1; i++) {
+    const h = request.header[i]
+    if (h.enable)
+      header[h.key] = h.value
+  }
+
+  console.log('params:', request.params)
+  let ps = ''
+  for (let i = 0; i < request.params.length - 1; i++) {
+    const p = request.params[i]
+    if (p.enable) ps += `&${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`
+  }
+  if (ps) ps = `?${ps.substring(1)}`
+
+  const req: RequestBodyType = {
+    method: request.method,
+    url: request.url + ps,
+    proxy: request.proxy,
+    header,
+    body: request.body,
+    expected: [],
+  }
+  testRequest(req).then((res) => {
+    console.log('request result:', res)
+    try {
+      requestResult.value = JSON.stringify(JSON.parse(res.body), null, 4)
+    }
+    catch (e: any) {
+      requestResult.value = JSON.stringify(res, null, 4)
+    }
+  })
 }
 
 const configType = ref('params')

@@ -1,6 +1,6 @@
 
 export interface RequestType {
-  method: string
+  method: 'GET' | 'POST'
   url: string
   params: ParamDataType[]
   header: HeaderDataType[]
@@ -41,4 +41,25 @@ export interface ParamDataType {
   key: string
   value: string
   desc: string
+}
+
+// BODY
+export interface RequestBodyType {
+  method: 'POST' | 'GET'
+  url: string
+  header: Record<string, string>
+  proxy?: string
+  body?: ReqeustBodyBodyType
+  expected: ExpectedType[]
+}
+
+export interface ReqeustBodyBodyType {
+  t: string
+  data: string | Record<string, string>
+}
+
+export interface ExpectedType {
+  path: string
+  value: string
+  vtype: string
 }

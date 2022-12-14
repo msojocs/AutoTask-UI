@@ -9,6 +9,24 @@
 </template>
 
 <script lang="ts" setup>
+const props = defineProps({
+  modelValue: {
+    required: true,
+    type: String,
+  },
+})
+
+const emits = defineEmits(['update:modelValue'])
+
+const binaryFile = computed({
+  get () {
+    return props.modelValue
+  },
+  set (v: string) {
+    emits('update:modelValue', v)
+  },
+})
+
 </script>
 
 <style lang="less" scoped>
