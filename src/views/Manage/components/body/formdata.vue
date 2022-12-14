@@ -61,7 +61,7 @@
                 <div v-else class="simple">
                   <span>{{ item.key || (index == kvData.length - 1 ? 'Key' : '') }}</span>
                   <div class="data-type" @click.stop>
-                    <el-select v-model="item.type" class="type-select" size="small" @change="item.value = '11111'">
+                    <el-select v-model="item.type" class="type-select" size="small" @change="item.value = ''">
                       <el-option label="Text" value="text" />
                       <el-option label="File" value="file" />
                     </el-select>
@@ -73,6 +73,7 @@
             <div @click="item.edit = 'value'">
               <div class="edit-area">
                 <template v-if="item.type == 'text'">
+                  <!-- 文本数据 -->
                   <div
                     v-if="item.edit == 'value'"
                     :id="item.id"
@@ -256,7 +257,8 @@ const onChangeMode = () => {
     bulkData.value = ''
     for (let i = 0; i < kvData.value.length - 1; i++) {
       const data = kvData.value[i]
-      bulkData.value += `${data.enable ? '' : '//'}${data.key}:${data.value}\n`
+      if (data.type === 'text')
+        bulkData.value += `${data.enable ? '' : '//'}${data.key}:${data.value}\n`
     }
     bulkData.value = bulkData.value.trimEnd()
   }
@@ -301,7 +303,8 @@ const onChangeMode = () => {
       ele.key = d[0] || ''
       ele.value = d[1] || ''
     }
-    kvData.value = tempData
+    kvData.value = kvData.value.filter(e => e.type === 'file')
+    kvData.value.push(...tempData)
   }
   editMode.value = editMode.value === 'kv' ? 'bulk' : 'kv'
 }
