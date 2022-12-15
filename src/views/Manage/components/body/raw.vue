@@ -7,7 +7,6 @@
       theme="vs-dark"
       default-language="javascript"
       :language="lang"
-      default-value="// some comment"
       @change="log"
     />
   </div>
@@ -23,14 +22,16 @@ const props = defineProps({
     default: 'text',
   },
   modelValue: {
-    required: true,
     type: String,
   },
 })
 
 const rawString = computed({
   get () {
-    return props.modelValue
+    if (props.modelValue === undefined)
+      emits('update:modelValue', '')
+
+    return props.modelValue || ''
   },
   set (v: string) {
     console.log('update rawString:', v)

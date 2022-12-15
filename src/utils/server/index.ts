@@ -132,7 +132,7 @@ const request = new Request({
             break
             // 其他错误，直接抛出错误提示
           default:
-            if (data.result) {
+            if (data && data.error) {
               ElMessage({
                 message: data.result?.message || '服务器错误！',
                 center: true,

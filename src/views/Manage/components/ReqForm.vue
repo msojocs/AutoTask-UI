@@ -140,8 +140,10 @@ const request = reactive<RequestType>({
     auto: false,
   }],
   body: {
-    t: '',
-    data: '',
+    type: 'text',
+    data: {
+
+    },
   },
 })
 const requestResult = ref('')
@@ -254,7 +256,7 @@ const sendRequest = () => {
   })
 }
 
-const configType = ref('params')
+const configType = ref('body')
 
 </script>
 

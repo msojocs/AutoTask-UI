@@ -25,7 +25,7 @@
       <div class="body test_wrapper" @dragover="dragover($event)">
         <transition-group name="sort">
           <div
-            v-for="(item, index) in kvData" :key="item.id"
+            v-for="(item, index) in formData" :key="item.id"
             class="row sort-item"
             :draggable="draggable"
             @dragstart="dragstart(item)"
@@ -37,11 +37,11 @@
             <div
               style="width: 40px;border-left: 1px solid #eee;"
               class="checkbox"
-              @mousedown="draggable = true && index != kvData.length - 1"
+              @mousedown="draggable = true && index != formData.length - 1"
               @mouseup="draggable = false"
             >
-              <drag-icon v-if="item.edit == '' && index != kvData.length - 1" class="drag-icon" />
-              <el-checkbox v-if="index != kvData.length - 1" v-model="item.enable" />
+              <drag-icon v-if="item.edit == '' && index != formData.length - 1" class="drag-icon" />
+              <el-checkbox v-if="index != formData.length - 1" v-model="item.enable" />
             </div>
             <!-- 参数名 -->
             <div @click="item.edit = 'key'">
@@ -51,7 +51,7 @@
                   :id="item.id"
                   :ref="edit"
                   class="edit-item"
-                  :placeholder="index == kvData.length - 1 ? 'Key' : ''"
+                  :placeholder="index == formData.length - 1 ? 'Key' : ''"
                   contenteditable="true"
                   @input="item.key = ($event.target as any).innerHTML"
                   @blur="onBlur(item)"
@@ -59,7 +59,7 @@
                   {{ item.key }}
                 </div>
                 <div v-else class="simple">
-                  <span>{{ item.key || (index == kvData.length - 1 ? 'Key' : '') }}</span>
+                  <span>{{ item.key || (index == formData.length - 1 ? 'Key' : '') }}</span>
                   <div class="data-type" @click.stop>
                     <el-select v-model="item.type" class="type-select" size="small" @change="item.value = ''">
                       <el-option label="Text" value="text" />
@@ -79,14 +79,14 @@
                     :id="item.id"
                     :ref="edit"
                     class="edit-item"
-                    :placeholder="index == kvData.length - 1 ? 'Value' : ''"
+                    :placeholder="index == formData.length - 1 ? 'Value' : ''"
                     contenteditable="true"
                     @input="item.value = ($event.target as any).innerHTML"
                     @blur="onBlur(item)"
                   >
                     {{ item.value }}
                   </div>
-                  <span v-else>{{ item.value || (index == kvData.length - 1 ? 'Value' : '') }}</span>
+                  <span v-else>{{ item.value || (index == formData.length - 1 ? 'Value' : '') }}</span>
                 </template>
                 <template v-else>
                   <!-- 上传文件 -->
@@ -109,17 +109,17 @@
                   :id="item.id"
                   :ref="edit"
                   class="edit-item"
-                  :placeholder="index == kvData.length - 1 ? 'Description' : ''"
+                  :placeholder="index == formData.length - 1 ? 'Description' : ''"
                   contenteditable="true"
                   @input="item.desc = ($event.target as any).innerHTML"
                   @blur="onBlur(item)"
                 >
                   {{ item.desc }}
                 </div>
-                <span v-else>{{ item.desc || (index == kvData.length - 1 ? 'Description' : '') }}</span>
+                <span v-else>{{ item.desc || (index == formData.length - 1 ? 'Description' : '') }}</span>
               </div>
               <div
-                v-if="item.edit == '' && index < kvData.length - 1"
+                v-if="item.edit == '' && index < formData.length - 1"
                 class="delete-button"
                 style="width: 25px;"
                 @click.stop="doDeleteItem(index)"
@@ -151,69 +151,41 @@
 
 <script lang="ts" setup>
 import DragIcon from '../DragIcon.vue'
+import type { FormDataType } from '../types'
 
 const oldData = ref(null) // 开始排序时按住的旧数据
 const newData = ref(null) // 拖拽过程的数据
 const draggable = ref(false)
 const editMode = ref<'kv'|'bulk'>('kv')
 
-interface KVDataType {
-  id: string
-  enable: boolean
-  edit: string
-  key: string
-  value: string
-  desc: string
-  type: 'file' | 'text'
-}
+const emits = defineEmits(['update:modelValue'])
+const props = defineProps<{
+  modelValue?: FormDataType[]
+}>()
 // 列表数据
-const kvData = ref<KVDataType[]>([
-  {
-    id: '1',
-    enable: false,
-    edit: '',
-    key: 'k1',
-    value: 'v1',
-    desc: '测试一号',
-    type: 'text',
+const formData = computed({
+  get () {
+    console.log('formData get', JSON.stringify(props.modelValue, null, 4))
+    if (props.modelValue === undefined) {
+      const defaultValue: FormDataType[] = [{
+        id: '1',
+        edit: '',
+        key: '',
+        value: '',
+        desc: '',
+        enable: true,
+        type: 'text',
+      }]
+      emits('update:modelValue', defaultValue)
+      return defaultValue
+    }
+    return props.modelValue
   },
-  {
-    id: '2',
-    enable: false,
-    edit: '',
-    key: 'k2',
-    value: 'v299999999999999999999988888888888888888899999999999999999999999999999999998',
-    desc: '测试二号',
-    type: 'text',
+  set (v: FormDataType[]) {
+    console.log('formData set', v)
+    emits('update:modelValue', v)
   },
-  {
-    id: '3',
-    enable: false,
-    edit: '',
-    key: 'k3',
-    value: 'v3',
-    desc: '测试三号',
-    type: 'text',
-  },
-  {
-    id: '4',
-    enable: true,
-    edit: '',
-    key: 'k4',
-    value: 'v4',
-    desc: '测试四号',
-    type: 'text',
-  },
-  {
-    id: '4',
-    enable: true,
-    edit: '',
-    key: '',
-    value: '',
-    desc: '',
-    type: 'text',
-  },
-])
+})
 const bulkData = ref('')
 
 const edit = (e: any) => {
@@ -233,16 +205,15 @@ const onBlur = (e: any) => {
 }
 const doDeleteItem = (index: number) => {
   console.log('doDeleteItem:', index)
-  kvData.value.splice(index, 1)
+  formData.value.splice(index, 1)
 }
 const newDataInput = (e: any) => {
   console.log('newDataInput')
-
-  const last = kvData.value[kvData.value.length - 1]
+  const last = formData.value[formData.value.length - 1]
   if (!(last.key + last.value + last.desc)) return
 
-  kvData.value.push({
-    id: `${kvData.value.length + 1}`,
+  formData.value.push({
+    id: `${formData.value.length + 1}`,
     edit: '',
     key: '',
     value: '',
@@ -255,8 +226,8 @@ const onChangeMode = () => {
   if (editMode.value === 'kv') {
     // kv -> bulk
     bulkData.value = ''
-    for (let i = 0; i < kvData.value.length - 1; i++) {
-      const data = kvData.value[i]
+    for (let i = 0; i < formData.value.length - 1; i++) {
+      const data = formData.value[i]
       if (data.type === 'text')
         bulkData.value += `${data.enable ? '' : '//'}${data.key}:${data.value}\n`
     }
@@ -265,7 +236,7 @@ const onChangeMode = () => {
   else {
     // bulk -> kv
     const lines = bulkData.value.split('\n')
-    const tempData: KVDataType[] = [
+    const tempData: FormDataType[] = [
       {
         id: '1',
         enable: true,
@@ -290,8 +261,8 @@ const onChangeMode = () => {
         })
       }
       // 可能已有
-      if (kvData.value[i])
-        tempData[i].desc = kvData.value[i].desc
+      if (formData.value[i])
+        tempData[i].desc = formData.value[i].desc
 
       const ele = tempData[i]
       let line = lines[i]
@@ -303,8 +274,8 @@ const onChangeMode = () => {
       ele.key = d[0] || ''
       ele.value = d[1] || ''
     }
-    kvData.value = kvData.value.filter(e => e.type === 'file')
-    kvData.value.push(...tempData)
+    formData.value = formData.value.filter(e => e.type === 'file')
+    formData.value.push(...tempData)
   }
   editMode.value = editMode.value === 'kv' ? 'bulk' : 'kv'
 }
@@ -324,14 +295,14 @@ const dragend = (value: any, e: any) => {
   console.log('dragend')
   draggable.value = false
   if (oldData.value !== newData.value) {
-    const oldIndex = kvData.value.indexOf(oldData.value)
-    const newIndex = kvData.value.indexOf(newData.value)
-    const newItems = [...kvData.value]
+    const oldIndex = formData.value.indexOf(oldData.value)
+    const newIndex = formData.value.indexOf(newData.value)
+    const newItems = [...formData.value]
     // 删除老的节点
     newItems.splice(oldIndex, 1)
     // 在列表中目标位置增加新的节点
     newItems.splice(newIndex, 0, oldData.value)
-    kvData.value = [...newItems]
+    formData.value = [...newItems]
   }
 }
 

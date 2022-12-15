@@ -5,14 +5,7 @@ export interface RequestType {
   params: ParamDataType[]
   header: HeaderDataType[]
   proxy?: string
-  body: RequestBody
-}
-
-// 请求体数据类型
-export interface RequestBody {
-  // 类型
-  t: string
-  data: string
+  body: ReqeustBodyBodyType
 }
 
 // 校验数据类型
@@ -53,9 +46,40 @@ export interface RequestBodyType {
   expected: ExpectedType[]
 }
 
+// 请求体数据类型
 export interface ReqeustBodyBodyType {
-  t: string
-  data: string | Record<string, string>
+  // 请求体类型
+  type: 'none' | 'json' | 'html' | 'form' | 'text' | 'xml' | 'javascript' | 'formData' | 'binary'
+
+  data: ReqeustBodyDataType
+}
+
+export interface ReqeustBodyDataType {
+  none?: null
+  raw?: string
+  binary?: string
+
+  form?: FormType
+  formData?: FormDataType
+}
+
+export interface FormDataType {
+  id: string
+  enable: boolean
+  edit: string
+  key: string
+  value: string
+  desc: string
+  type: 'file' | 'text'
+}
+
+export interface FormType {
+  id: string
+  enable: boolean
+  edit: string
+  key: string
+  value: string
+  desc: string
 }
 
 export interface ExpectedType {

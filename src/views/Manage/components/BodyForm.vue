@@ -1,11 +1,11 @@
 <template>
   <div class="body-form">
     <div class="mode-switch">
-      <ElRadioGroup v-model="bodyMode" @change="switchMode">
+      <ElRadioGroup v-model="bodyMode" @update:model-value="switchMode">
         <el-radio label="none">
           none
         </el-radio>
-        <el-radio label="form-data">
+        <el-radio label="formData">
           form-data
         </el-radio>
         <el-radio label="form">
@@ -30,33 +30,51 @@
         <el-option label="XML" value="xml" />
       </el-select>
     </div>
-    <div>
-      <component :is="editCmp" v-model="bodyData.data" :lang="editorLang" />
+    <div v-if="!loading">
+      <component :is="editCmp" v-if="bodyMode != 'none'" v-model="bodyData.data[bodyMode]" :lang="editorLang" />
+      <component
+        :is="editCmp"
+        v-else
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { RequestBody } from './types'
+import type { ReqeustBodyBodyType } from './types'
 
 const props = defineProps<{
-  body: RequestBody
+  body: ReqeustBodyBodyType
 }>()
-const bodyMode = ref('raw')
+const bodyMode = ref<'none' | 'form' | 'formData' | 'raw' | 'binary'>('formData')
 const editCmp = shallowRef()
-const editorLang = ref('text')
+const editorLang = ref<'text' | 'json' | 'html' | 'xml' | 'javascript'>('text')
 const bodyData = ref(props.body)
+// loading处理bug
+const loading = ref(false)
 
 const updateType = () => {
-  bodyData.value.t = bodyMode.value
+  console.log('BodyForm updateType')
   if (bodyMode.value === 'raw')
-    bodyData.value.t = editorLang.value
+    bodyData.value.type = editorLang.value
+  else
+    bodyData.value.type = bodyMode.value
 }
 
 const loadModule = (mode: string) => {
+  console.log('BodyForm loadModule')
   updateType()
+  /**
+   * 组件在加载时会初始化数据
+   * 由于component是异步加载
+   * 会导致v-model先切换完成，然后切换component
+   * 这样新的v-model会被旧的component初始化
+   * 导致数据错误
+   */
+  loading.value = true
   import(`./body/${mode}.vue`).then((res) => {
     editCmp.value = res.default
+    loading.value = false
   }).catch((err) => {
     console.error('模块缺失', err)
   })
@@ -67,6 +85,7 @@ onMounted(() => {
 })
 
 const switchMode = (mode: any) => {
+  console.log('BodyForm switchMode to:', mode)
   loadModule(mode)
 }
 </script>
