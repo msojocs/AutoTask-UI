@@ -34,14 +34,14 @@ const request = new Request({
       // Do something with response data
       console.log('response', response)
 
-      if (response.status / 100 !== 2) return Promise.reject(response)
+      if (Math.floor(response.status / 100) !== 2) return Promise.reject(response)
 
       const resp = response.data
       if (resp && resp.code !== 0) {
         console.log('状态码异常', resp)
-        if (resp.result) {
+        if (resp.msg) {
           ElMessage({
-            message: resp.result.message,
+            message: resp.msg,
             center: true,
             type: 'error',
           })
@@ -49,6 +49,7 @@ const request = new Request({
         return resp
       }
 
+      console.log('responseInterceptors')
       return response
     },
     async responseInterceptorsCatch (error) {
@@ -184,8 +185,8 @@ const ATRequest = async <D = any, T = any>(config: EMSRequestConfig<D, T>) => {
     config.params = config.data
 
   return await request.request<EMSResponse<T>>(config).then(async (res) => {
-    if (res?.code === 0) return await Promise.resolve(res.data)
-    else return await Promise.reject(res)
+    if (res && res?.code !== 0) return await Promise.reject(res)
+    else return await Promise.resolve(res.data)
   })
 }
 
@@ -200,6 +201,12 @@ export const GET = async <T = any, R = AxiosResponse<T>, D = any>(url: string, c
   if (config == null)config = {}
   config.url = url
   config.method = 'GET'
+  return await ATRequest(config)
+}
+export const DELETE = async <T = any, R = AxiosResponse<T>, D = any>(url: string, config?: EMSRequestConfig<D, T>) => {
+  if (config == null)config = {}
+  config.url = url
+  config.method = 'DELETE'
   return await ATRequest(config)
 }
 export default ATRequest

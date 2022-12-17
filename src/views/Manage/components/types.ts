@@ -6,6 +6,7 @@ export interface RequestType {
   header: HeaderDataType[]
   proxy?: string
   body: ReqeustBodyBodyType
+  expected?: ExpectedType[]
 }
 
 // 校验数据类型
@@ -83,7 +84,16 @@ export interface FormType {
 }
 
 export interface ExpectedType {
-  path: string
+  // 名称
+  name: string
+  // 是否启用
+  enable: boolean
+  // 断言对象
+  target: string
+  // json路径
+  path?: string
+  // 预期值
   value: string
-  vtype: string
+  // 计算表达式类型
+  exp: string
 }

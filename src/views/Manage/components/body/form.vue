@@ -131,7 +131,7 @@ const draggable = ref(false)
 const editMode = ref<'kv'|'bulk'>('kv')
 
 const props = defineProps<{
-  modelValue: FormType[]
+  modelValue?: FormType[]
 }>()
 const emits = defineEmits(['update:modelValue'])
 // 列表数据

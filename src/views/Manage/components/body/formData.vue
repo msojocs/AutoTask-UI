@@ -93,10 +93,11 @@
                   <div class="select-binary">
                     <label v-if="!item.value.length" class="text" for="binary_file">Selecte file</label>
                     <div v-else class="name">
-                      <span class="filename">{{ item.value }}</span>
-                      <span class="remove" @click="item.value = ''">x</span>
+                      <span class="filename">{{ item.value.substring(item.value.lastIndexOf('/')+1) }}</span>
+                      <!-- 删除按钮 -->
+                      <span class="remove" @click="deleteRequestFile(item)">x</span>
                     </div>
-                    <input id="binary_file" type="file" style="opacity: 0;">
+                    <input id="binary_file" type="file" style="opacity: 0;" @change="upload($event, item)">
                   </div>
                 </template>
               </div>
@@ -150,6 +151,8 @@
 </template>
 
 <script lang="ts" setup>
+import { ElMessage } from 'element-plus'
+import { deleteFile, uploadFile } from '../api'
 import DragIcon from '../DragIcon.vue'
 import type { FormDataType } from '../types'
 
@@ -207,7 +210,7 @@ const doDeleteItem = (index: number) => {
   console.log('doDeleteItem:', index)
   formData.value.splice(index, 1)
 }
-const newDataInput = (e: any) => {
+const newDataInput = () => {
   console.log('newDataInput')
   const last = formData.value[formData.value.length - 1]
   if (!(last.key + last.value + last.desc)) return
@@ -280,6 +283,28 @@ const onChangeMode = () => {
   editMode.value = editMode.value === 'kv' ? 'bulk' : 'kv'
 }
 
+const upload = (e: any, item: FormDataType) => {
+  const file = e.target.files[0]
+  const formdata = new FormData()
+  formdata.append('file', file)
+  uploadFile(formdata).then((res) => {
+    console.log('upload ok', res)
+    item.value = res.path
+    newDataInput()
+  }).finally(() => {
+    e.target.value = ''
+  })
+}
+const deleteRequestFile = (item: FormDataType) => {
+  deleteFile(item.value).then((res) => {
+    console.log(res)
+    item.value = ''
+    ElMessage.success({
+      message: '删除成功！',
+    })
+  })
+}
+
 const dragstart = (value: any) => {
   oldData.value = value
 }
@@ -311,6 +336,7 @@ const dragover = (e: any) => {
   console.log('dragover')
   e.preventDefault()
 }
+
 </script>
 
 <style lang="less" scoped>

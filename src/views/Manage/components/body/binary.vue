@@ -5,14 +5,16 @@
       <label v-if="binaryFile.length == 0" class="text" for="binary_file">Selecte file</label>
       <div v-else class="name">
         <span class="filename">{{ displayBinaryFile }}</span>
-        <span class="remove" @click="binaryFile = ''">x</span>
+        <span class="remove" @click="deleteBinaryFile">x</span>
       </div>
       <input id="binary_file" type="file" style="opacity: 0;" @change="upload">
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>import { uploadFile } from '../api'
+<script lang="ts" setup>
+import { ElMessage } from 'element-plus'
+import { deleteFile, uploadFile } from '../api'
 
 const props = defineProps({
   modelValue: {
@@ -21,7 +23,6 @@ const props = defineProps({
     default: '',
   },
 })
-
 const emits = defineEmits(['update:modelValue'])
 
 const binaryFile = computed({
@@ -40,6 +41,18 @@ const upload = (e: any) => {
   uploadFile(formdata).then((res) => {
     console.log('upload ok', res)
     binaryFile.value = res.path
+  }).catch((_err) => {
+    e.target.files.clear()
+  }).finally(() => {
+    e.target.value = ''
+  })
+}
+const deleteBinaryFile = () => {
+  deleteFile(binaryFile.value).then((_res) => {
+    binaryFile.value = ''
+    ElMessage.success({
+      message: '删除成功',
+    })
   })
 }
 const displayBinaryFile = computed(() => {

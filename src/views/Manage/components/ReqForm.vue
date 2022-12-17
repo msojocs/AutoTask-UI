@@ -10,6 +10,11 @@
             <el-select v-model="request.method">
               <el-option value="GET" label="GET" />
               <el-option value="POST" label="POST" />
+              <el-option value="PUT" label="PUT" />
+              <el-option value="DELETE" label="DELETE" />
+              <el-option value="PATCH" label="PATCH" />
+              <el-option value="OPTION" label="OPTION" />
+              <el-option value="HEAD" label="HEAD" />
             </el-select>
           </template>
         </el-input>
@@ -31,6 +36,9 @@
           <el-tab-pane label="Body" name="body">
             <BodyForm :body="request.body" />
           </el-tab-pane>
+          <el-tab-pane label="Expected" name="expected">
+            <ExpectedForm v-model:expected="request.expected" />
+          </el-tab-pane>
         </el-tabs>
       </div>
       <div class="result">
@@ -46,12 +54,18 @@ import AuthForm from './AuthForm.vue'
 import BodyForm from './BodyForm.vue'
 import HeaderForm from './HeaderForm.vue'
 import ParamForm from './ParamForm.vue'
+import ExpectedForm from './ExpectedForm.vue'
 import type { ParamDataType, RequestBodyType, RequestType } from './types'
+
+// 标记K值是否有携带等号
+const equlaMark = ref<string[]>([])
+const requestResult = ref('')
+const configType = ref('expected')
 
 const request = reactive<RequestType>({
   method: 'POST',
   url: 'https://httpbin.org/post',
-  proxy: 'http://127.0.0.1:8888',
+  // proxy: 'http://127.0.0.1:8888',
   params: [
     {
       id: '1',
@@ -145,11 +159,17 @@ const request = reactive<RequestType>({
 
     },
   },
+  expected: [
+    {
+      name: '状态码',
+      enable: true,
+      target: 'status',
+      value: '200',
+      exp: '>',
+    },
+  ],
 })
-const requestResult = ref('')
 
-// 标记K值是否有携带等号
-const equlaMark = ref<string[]>([])
 const url = computed({
   get () {
     const u = request.url
@@ -243,7 +263,7 @@ const sendRequest = () => {
     proxy: request.proxy,
     header,
     body: request.body,
-    expected: [],
+    expected: request.expected || [],
   }
   testRequest(req).then((res) => {
     console.log('request result:', res)
@@ -255,8 +275,6 @@ const sendRequest = () => {
     }
   })
 }
-
-const configType = ref('body')
 
 </script>
 
