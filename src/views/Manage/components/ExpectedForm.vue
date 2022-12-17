@@ -10,8 +10,19 @@
       <template v-for="(item, index) in expectedData" :key="index">
         <el-collapse-item :name="index">
           <template #title>
-            {{ item.name }}
-            <el-switch v-model="item.enable" />
+            <div class="title">
+              <div>{{ item.name }}</div>
+              <div class="action">
+                <div>
+                  <el-switch v-model="item.enable" />
+                </div>
+                <div @click="deleteExpectedData(index)">
+                  <el-icon :size="15">
+                    <Delete />
+                  </el-icon>
+                </div>
+              </div>
+            </div>
           </template>
           <div class="line">
             <div class="label">
@@ -119,9 +130,12 @@ const addExpectedData = () => {
     exp: '',
   })
 }
+const deleteExpectedData = (i: number) => {
+  expectedData.value.splice(i, 1)
+}
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .expected-list {
   .line {
     display: flex;
@@ -141,7 +155,34 @@ const addExpectedData = () => {
         --el-input-border-radius: 0px 4px 4px 0px;
       }
       >.check-type{
-        .el-input__wrapper {
+        >.select-trigger > .el-input > .el-input__wrapper {
+          --el-input-border-radius: 4px 0px 0px 4px;
+        }
+      }
+    }
+  }
+  .title {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    >.action {
+      display: flex;
+      margin: 0 10px;
+      align-items: center;
+      >div {
+        display: flex;
+      }
+    }
+  }
+}
+</style>
+
+<style lang="less">
+.expected-list {
+  .line {
+    >.data {
+      >.check-type{
+        >.select-trigger > .el-input > .el-input__wrapper {
           --el-input-border-radius: 4px 0px 0px 4px;
         }
       }
